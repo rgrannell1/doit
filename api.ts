@@ -1,4 +1,4 @@
-import { TodoistApi } from "npm:@doist/todoist-api-typescript";
+import { TodoistApi } from "./deps.ts";
 import { Config } from "./config.ts";
 
 export type TaskFilters = {
