@@ -14,20 +14,28 @@ export class TodoistAPI {
   constructor() {
     this.api = new TodoistApi(Config.getEnv("TODOIST_TOKEN"));
   }
+
   getTasks() {
     return this.api.getTasks();
   }
+
   getProjects() {
-    if (this.projects) {
-      return this.projects;
+    if (!this.projects) {
+      this.projects = this.api.getProjects();
     }
-    this.projects = this.api.getProjects();
     return this.projects;
   }
 
   async getProject(name: string) {
-    const projects = await this.api.getProjects();
+    const projects = await this.getProjects();
     return projects.find((project) => project.name === name);
+  }
+
+  async getSections() {
+    if (!this.sections) {
+      this.sections = this.api.getSections();
+    }
+    return this.sections;
   }
 
   async getProjectTasks(name: string) {
@@ -38,41 +46,38 @@ export class TodoistAPI {
     if (!project) {
       throw new Error(`Project with name "${name}" not found.`);
     }
-
     const sections = await this.getSections();
-
     return Object.groupBy(
       tasks.filter((task) => task.projectId === project.id),
       (task) => {
-        const section = sections.find((section) =>
-          section.id === task.sectionId
-        );
+        const section = sections.find((s) => s.id === task.sectionId);
         return section ? section.name : "No Section";
       },
     );
   }
 
-  getSections() {
-    if (this.sections) {
-      return this.sections;
-    }
-    this.sections = this.api.getSections();
-    return this.sections;
-  }
-}
-
-export class PersonalTodoist {
-  api: TodoistAPI;
-
-  constructor(api: TodoistAPI) {
-    this.api = api;
-  }
-
   getSharedTasks() {
-    return this.api.getProjectTasks("Shared");
+    return this.getProjectTasks("Shared");
   }
 
   getInboxTasks() {
-    return this.api.getProjectTasks("Inbox");
+    return this.getProjectTasks("Inbox");
+  }
+
+  async moveTaskToInboxSection(taskId: string, sectionName: string): Promise<void> {
+    const sections = await this.getSections();
+    const section = sections.find((s) => s.name === sectionName);
+    if (!section) {
+      throw new Error(`Section "${sectionName}" not found.`);
+    }
+    const projects = await this.getProjects();
+    const inboxProject = projects.find((p) => p.name === "Inbox");
+    if (!inboxProject) {
+      throw new Error(`Project "Inbox" not found.`);
+    }
+    await this.api.moveTask(taskId, {
+      projectId: inboxProject.id,
+      sectionId: section.id,
+    });
   }
 }
