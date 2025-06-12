@@ -1,3 +1,5 @@
+import { Section } from "../config.ts";
+
 /*
  * Partition tasks into scheduled and unscheduled
  * @param {Array} tasks - Array of task objects
@@ -28,7 +30,7 @@ export async function updateSharedTasks(client, args) {
 
   // Sequential to be polite to rate limits
   for (const tasks of scheduled) {
-    await client.moveTaskToInboxSection(tasks.id, "⏰ Scheduled");
+    await client.moveTaskToInboxSection(tasks.id, Section.SCHEDULED);
   }
 
   console.log(unscheduled);

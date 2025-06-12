@@ -7,3 +7,9 @@ export class Config {
     return value;
   }
 }
+
+export enum Section {
+  SCHEDULED = "⏰ Scheduled",
+  NOTES_OPTIONS_PARCELS = "Notes, Options, Parcels",
+  NO_SECTION = "No Section",
+}

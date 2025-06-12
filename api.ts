@@ -1,5 +1,5 @@
 import { TodoistApi } from "./deps.ts";
-import { Config } from "./config.ts";
+import { Config, Section } from "./config.ts";
 
 export type TaskFilters = {
   labels?: string[];
@@ -51,7 +51,7 @@ export class TodoistAPI {
       tasks.filter((task) => task.projectId === project.id),
       (task) => {
         const section = sections.find((s) => s.id === task.sectionId);
-        return section ? section.name : "No Section";
+        return section ? section.name : Section.NO_SECTION;
       },
     );
   }
@@ -64,7 +64,10 @@ export class TodoistAPI {
     return this.getProjectTasks("Inbox");
   }
 
-  async moveTaskToInboxSection(taskId: string, sectionName: string): Promise<void> {
+  async moveTaskToInboxSection(
+    taskId: string,
+    sectionName: string,
+  ): Promise<void> {
     const sections = await this.getSections();
     const section = sections.find((s) => s.name === sectionName);
     if (!section) {
@@ -75,6 +78,8 @@ export class TodoistAPI {
     if (!inboxProject) {
       throw new Error(`Project "Inbox" not found.`);
     }
+
+    // TODO
     await this.api.moveTask(taskId, {
       projectId: inboxProject.id,
       sectionId: section.id,

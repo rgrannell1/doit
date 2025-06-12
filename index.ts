@@ -1,5 +1,5 @@
 import { USAGE } from "./constants.ts";
-import { neodoc, TodoistApi } from "./deps.ts";
+import { neodoc } from "./deps.ts";
 
 import { getTasks, updateSharedTasks } from "./commands/index.ts";
 import { TodoistAPI } from "./api.ts";
